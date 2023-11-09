@@ -1,0 +1,7 @@
+5
+e
+True
+
+# 1 - Time Sleep
+# 2 - Key Code
+# 3 - Mouse is used
