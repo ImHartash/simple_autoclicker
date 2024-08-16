@@ -54,13 +54,15 @@
     }
 
     QLabel#lbl_keyboard,
-    #lbl_mouse {
+    #lbl_mouse,
+    #lbl_general {
         border-bottom: 3px solid grey;
         padding: 3px;
     }
 
     QLabel#lbl_keyboard:hover,
-    #lbl_mouse:hover {
+    #lbl_mouse:hover,
+    #lbl_general:hover {
         border-bottom: 3px solid purple;
         padding: 3px;
     }
@@ -83,4 +85,13 @@
         border: 2px solid purple;
         border-radius: 5px;
         background-color: darkmagenta
+    }
+
+    QComboBox {
+        border: 2px solid grey;
+        border-radius: 5px;
+    }
+
+    QComboBox:hover {
+        border-color: purple;
     }

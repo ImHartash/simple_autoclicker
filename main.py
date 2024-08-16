@@ -21,14 +21,11 @@ class SimpleAutoClicker(QMainWindow):
         self.ui.setupUi(self)
         
         # My needs
-        self.version = 'v0.31'
+        self.version = 'v0.32'
         self.start_thread = None
         self.click_thread = None
         
         self.accept_letters = 'qwertyuiopasdfghjklzxcvbnm1234567890'
-        
-        self.stop_thread = False
-        self.is_active = True
         
         # Functions
         # self.set_settings()
@@ -45,8 +42,16 @@ class SimpleAutoClicker(QMainWindow):
             try:
                 
                 time_sleep = float(self.ui.le_timesleep.text())
+                
+                type = self.ui.cob_rightleft_2.currentText()
+                
                 key_code = self.ui.le_keycode.text().lower()
+                
+                mouse_code = self.ui.cob_rightleft.currentText()
+                
                 is_mouse_enabled = self.ui.cb_mouseenable.isChecked()
+                
+                is_keyboard_enabled = self.ui.cb_keyboardenable.isChecked()
                 
             except ValueError:
                 
@@ -56,12 +61,14 @@ class SimpleAutoClicker(QMainWindow):
                 
                 return
                 
-            if 100 > time_sleep > 0.01 and key_code in self.accept_letters:
+            if 100 > time_sleep > 0.01 and key_code in self.accept_letters and (self.ui.cb_keyboardenable or self.ui.cb_mouseenable):
                 print("Good")
                 
                 # Functions
                 if not self.click_thread or not self.click_thread.is_alive():
-                    self.click_thread = threading.Thread(target=self.run_loop, daemon=True, args=(key_code, is_mouse_enabled, time_sleep))
+                    self.click_thread = threading.Thread(target=self.run_loop,
+                                                         args=(key_code, mouse_code, is_keyboard_enabled, is_mouse_enabled,
+                                                               time_sleep, type), daemon=True)
                     self.click_thread.start()
                 
                 
@@ -74,19 +81,41 @@ class SimpleAutoClicker(QMainWindow):
             self.click_thread = None
     
     
-    def run_loop(self, key_code: str, is_mouse_enabled: bool, timesleep: float) -> None:
+    def run_loop(self, keyboard_key: str, mouse_key: str, en_keyboard: bool, en_mouse: bool,
+                 timesleep: float, type: str) -> None:
         print("Starting Loop.")
         
-        if not is_mouse_enabled:
-            while self.ui.btn_status.isChecked():
-                sleep(timesleep)
-                keyboard.press_and_release(key_code)
-        else:
-            while self.ui.btn_status.isChecked():
-                sleep(timesleep)
-                keyboard.press_and_release(key_code)
-                mouse.click(button='left')
+        if en_keyboard and en_mouse:
+            if type == 'Keyboard - Mouse':
                 
+                while self.ui.btn_status.isChecked():
+                    sleep(timesleep)
+                    keyboard.press_and_release(keyboard_key)
+                    mouse.click(button=mouse_key)
+                    
+            else:
+                
+                while self.ui.btn_status.isChecked():
+                    sleep(timesleep)
+                    mouse.click(button=mouse_key)
+                    keyboard.press_and_release(keyboard_key)
+                    
+        elif en_keyboard and not en_mouse:
+            
+            while self.ui.btn_status.isChecked():
+                sleep(timesleep)
+                keyboard.press_and_release(keyboard_key)
+        
+        elif not en_keyboard and en_mouse:
+            
+            while self.ui.btn_status.isChecked():
+                sleep(timesleep)
+                mouse.click(button=mouse_key.lower())
+        
+        else:
+            
+            self.ui.btn_status.setChecked(False)
+                    
     
     def pressed_hotkey(self, key) -> None:
         if key == Key.f6:
@@ -101,14 +130,14 @@ class SimpleAutoClicker(QMainWindow):
     def check_mouse(self) -> bool:
         return self.ui.cb_mouseenable.isCheckable
 
-    def set_settings(self) -> str:
-        with open('settings.txt', 'r') as file:
-            TimeSleep = file.readline(1)
-            KeyCode = file.readline(2)
-            MouseIsUsed = file.readline(3)
+    # def set_settings(self) -> str:
+    #     with open('settings.txt', 'r') as file:
+    #         TimeSleep = file.readline(1)
+    #         KeyCode = file.readline(2)
+    #         MouseIsUsed = file.readline(3)
             
-            print(f'TimeSleep: {TimeSleep}, KeyCode: {KeyCode}, Mouse: {MouseIsUsed}')
-            print(type(KeyCode))
+    #         print(f'TimeSleep: {TimeSleep}, KeyCode: {KeyCode}, Mouse: {MouseIsUsed}')
+    #         print(type(KeyCode))
     
 
 
